@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+<robot name="hovercraft">
+    <material name="body_color">
+        <color rgba="0.8 0.8 0.8 1.0"/>
+    </material>
+
+    <link name="world"/>
+
+    <link name="x_link"/>
+
+    <link name="y_link"/>
+
+    <link name="base">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1e-4"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+    </link>
+
+    <link name="body">
+        <inertial>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual>
+            <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.5 0.3 0.15"/>
+            </geometry>
+            <material name="body_color"/>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <box size="0.5 0.3 0.15"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="head">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="0.2"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="0.15" length="0.15"/>
+            </geometry>
+            <material name="body_color"/>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="0.15" length="0.15"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="cabin">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="0.2"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <sphere radius="0.15"/>
+            </geometry>
+            <material name="body_color"/>
+        </visual>
+        <!-- <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <sphere radius="0.15"/>
+            </geometry>
+        </collision> -->
+    </link>
+
+    <joint name="x_joint" type="prismatic">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="world"/>
+        <child link="x_link"/>
+        <axis xyz="1.0 0.0 0.0"/>
+        <limit lower="-100.0" upper="100.0"/>
+    </joint>
+
+    <joint name="y_joint" type="prismatic">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="x_link"/>
+        <child link="y_link"/>
+        <axis xyz="0.0 1.0 0.0"/>
+        <limit lower="-100.0" upper="100.0"/>
+    </joint>
+
+    <joint name="theta_joint" type="continuous">
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="y_link"/>
+        <child link="base"/>
+        <axis xyz="0.0 0.0 1.0"/>
+    </joint>
+
+    <joint name="floating_base" type="fixed">
+        <origin xyz="0.0 0.0 0.105" rpy="0.0 0.0 0.0"/>
+        <parent link="base"/>
+        <child link="body"/>
+        <axis xyz="0.0 0.0 0.0"/>
+    </joint>
+
+    <joint name="head_joint" type="fixed">
+        <origin xyz="0.25 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="body"/>
+        <child link="head"/>
+        <axis xyz="0.0 0.0 0.0"/>
+    </joint>
+
+    <joint name="cabin_joint" type="fixed">
+        <origin xyz="-0.1 0.0 0.075" rpy="0.0 0.0 0.0"/>
+        <parent link="body"/>
+        <child link="cabin"/>
+        <axis xyz="0.0 0.0 0.0"/>
+    </joint>
+
+</robot>
