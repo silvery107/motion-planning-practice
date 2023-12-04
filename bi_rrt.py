@@ -1,15 +1,14 @@
 import time
 import numpy as np
-from numpy import ndarray
 from rrt import RRT, Node, shortcut_smoothing
 from utils import *
 
 class BiRRT:
     """Bidirectional Rapidly Exploring Random Tree
     """
-    def __init__(self, config_space: ndarray, collision_fn, goal_bias: float = 0.1, step_size: float = 0.05):
-        self.rrt_start = RRT(config_space, collision_fn, goal_bias, step_size)
-        self.rrt_goal = RRT(config_space, collision_fn, goal_bias, step_size)
+    def __init__(self, config_space, collision_fn, *, goal_bias=0.1, step_size=0.05, **kwargs):
+        self.rrt_start = RRT(config_space, collision_fn, goal_bias=goal_bias, step_size=step_size)
+        self.rrt_goal = RRT(config_space, collision_fn, goal_bias=goal_bias, step_size=step_size)
         self._collision_fn = collision_fn
 
     def plan_path(self, start_config, goal_config):

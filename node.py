@@ -1,9 +1,8 @@
 import numpy as np
-from numpy import ndarray
 from utils import EPSILON
 
 class AbcNode:
-    def __init__(self, config:ndarray, parent=None) -> None:
+    def __init__(self, config, parent=None) -> None:
         self.config = config
         self.parent = parent
     

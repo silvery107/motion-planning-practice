@@ -5,18 +5,6 @@ from numpy import ndarray
 from node import AbcNode
 from utils import *
 
-MODE = 8
-DIRECTIONS = {(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, np.pi), (0, 0, -np.pi)}
-assert len(DIRECTIONS) == 6
-if MODE == 8:
-    for x in [-1, 0, 1]:
-        for y in [-1, 0, 1]:
-            for theta in [-np.pi, 0, np.pi]:
-                DIRECTIONS.add((x, y, theta))
-    DIRECTIONS.remove((0, 0, 0))
-    assert len(DIRECTIONS) == 26
-DIRECTIONS = np.array(list(DIRECTIONS))
-
 
 class Node(AbcNode):
     def __init__(self, config:ndarray, parent=None):
@@ -106,9 +94,19 @@ def h_cost(node:Node, goal:Node) -> float:
 
 
 class Astar:
-    def __init__(self, config_space, collision_fn, *args, **kwargs):
+    def __init__(self, config_space, collision_fn, *, connectivity=8, **kwargs):
         self._collison_fn = collision_fn
         self._config_space = config_space
+        self._directions = {(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, np.pi), (0, 0, -np.pi)}
+        assert len(self._directions) == 6
+        if connectivity == 8:
+            for x in [-1, 0, 1]:
+                for y in [-1, 0, 1]:
+                    for theta in [-np.pi, 0, np.pi]:
+                        self._directions.add((x, y, theta))
+            self._directions.remove((0, 0, 0))
+            assert len(self._directions) == 26
+        self._directions = np.array(list(self._directions))
 
     def plan_path(self, start_config, goal_config):
         path = []
@@ -155,7 +153,7 @@ class Astar:
                 break
 
             # Expand node
-            for direction in DIRECTIONS:
+            for direction in self._directions:
                 new_config = curr_node.config + direction * config_scale
                 new_config[2] = wrap_to_pi(new_config[2])
                 succ_node = Node(new_config)

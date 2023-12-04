@@ -10,7 +10,7 @@ WHITE = (1, 1, 1, 1)
 GREEN = (0, 1, 0, 1)
 # Simulation params
 SIM_DT = 1./240.
-EPSILON = 1e-3
+EPSILON = 1e-4
 DECIMATION = 4
 # Control params
 P_GAIN = 0.8
@@ -34,7 +34,11 @@ def wrap_to_pi(angle):
     Returns:
         float or 1D array: Angle in [-pi, pi]
     """
-    return ((angle + np.pi) % (2 * np.pi)) - np.pi
+    while angle < -np.pi:
+        angle += 2 * np.pi
+    while angle > np.pi:
+        angle -= 2 * np.pi
+    return angle
 
 def draw_sphere_markers(configs, color, marker_size=3.):
     """

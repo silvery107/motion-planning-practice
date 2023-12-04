@@ -16,8 +16,10 @@ class RRT:
     def __init__(self, 
                  config_space:ndarray,
                  collision_fn,
+                 *,
                  goal_bias:float=0.1, 
-                 step_size:float=0.05):
+                 step_size:float=0.05,
+                 **kwargs):
         self._elements = []
         self._configs = []
         self._kdtree = None
