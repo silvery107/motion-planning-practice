@@ -4,10 +4,7 @@ from argparse import ArgumentParser
 import pybullet_data
 
 from robot import Hovercraft
-from rrt import RRT
-from bi_rrt import BiRRT
-from kd_rrt import KdRRT
-from astar import Astar
+from planners import RRT, BiRRT, KdRRT, Astar
 from utils import *
 
 parser = ArgumentParser()

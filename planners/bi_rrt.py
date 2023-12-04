@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from rrt import RRT, Node, shortcut_smoothing
+from .rrt import RRT, Node, shortcut_smoothing
 from utils import *
 
 class BiRRT:

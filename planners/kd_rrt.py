@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from rrt import RRT, Node
+from .rrt import RRT, Node
 from scipy.integrate import solve_bvp
 from utils import *
 
@@ -19,7 +19,7 @@ class KdRRT(RRT):
                  step_size=0.05, 
                  **kwargs):
 
-        super().__init__(config_space, collision_fn, goal_bias, step_size)
+        super().__init__(config_space, collision_fn, goal_bias=goal_bias, step_size=step_size)
         self._robot = robot_model
         self._num_primitives = num_primitives
         self._uniform_primitive = uniform_primitive
