@@ -10,7 +10,7 @@ WHITE = (1, 1, 1, 1)
 GREEN = (0, 1, 0, 1)
 # Simulation params
 SIM_DT = 1./240.
-EPSILON = 1e-4
+EPSILON = 1e-3
 DECIMATION = 4
 # Control params
 P_GAIN = 0.8
