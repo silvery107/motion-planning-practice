@@ -1,5 +1,5 @@
 import numpy as np
-from node import AbcNode
+from common import AbcNode
 from numpy import ndarray
 from sklearn.neighbors import KDTree
 from .smoothing import shortcut_smoothing

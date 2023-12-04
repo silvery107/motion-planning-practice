@@ -3,7 +3,7 @@ import pybullet as p
 from argparse import ArgumentParser
 import pybullet_data
 
-from robot import Hovercraft
+from common import Hovercraft
 from planners import RRT, BiRRT, KdRRT, Astar
 from utils import *
 

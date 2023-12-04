@@ -2,7 +2,7 @@ import time
 import numpy as np
 from queue import PriorityQueue
 from numpy import ndarray
-from node import AbcNode
+from common import AbcNode
 from utils import *
 
 
