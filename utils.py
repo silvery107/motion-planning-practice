@@ -1,6 +1,7 @@
 import numpy as np
 import pybullet as p
 import time
+import json
 # Colors
 RED = (1, 0, 0, 1)
 BLACK = (0, 0, 0, 1)
@@ -17,6 +18,13 @@ D_GAIN = 0.0
 # Render params
 MAX_POINTS = 35000
 RNG = np.random.default_rng()
+# Maze params
+wall_urdf = "assets/maze_wall.urdf"
+corner_urdf = "assets/maze_corner.urdf"
+boundary_urdf = "assets/maze_boundary.urdf"
+wall_length = 1.0
+wall_height = 0.5
+maze_size = 10
 
 def wrap_to_pi(angle):
     """
@@ -154,3 +162,71 @@ def set_joint_positions(robot_id, joint_indices, positions):
     # and len(joints) <= len(positions)
     for joint, value in zip(joint_indices, positions):
         p.resetJointState(robot_id, joint, value)
+
+def calculate_path_quality(path):
+    path_cost = 0.0
+    for idx in range(1, len(path)):
+        prev_pt = path[idx-1]
+        curr_pt = path[idx]
+        dtheta = np.abs(curr_pt[2] - prev_pt[2])
+        path_cost += np.sqrt((curr_pt[0] - prev_pt[0])**2 + 
+                             (curr_pt[1] - prev_pt[1])**2 + 
+                             min(dtheta, 2*np.pi-dtheta)**2)
+    return path_cost
+
+def add_wall_segment(x, y, value):
+    position = [x * wall_length - maze_size/2., 
+                y * wall_length - maze_size/2., 
+                wall_height/2.]
+    if value == 1:  # Horizontal wall
+        # Place horizontal wall code here
+        orientation = p.getQuaternionFromEuler([0, 0, 0])
+        p.loadURDF(wall_urdf, basePosition=position, 
+                   baseOrientation=orientation, useFixedBase=True)
+    elif value == 2:  # Vertical wall
+        # Place vertical wall code here
+        orientation = p.getQuaternionFromEuler([0, 0, 1.5707963268])
+        p.loadURDF(wall_urdf, basePosition=position, 
+                   baseOrientation=orientation, useFixedBase=True)
+    elif value == 3:  # Top-left corner
+        # Place top-left corner wall code here
+        orientation = p.getQuaternionFromEuler([0, 0, 3.1415926536])
+        p.loadURDF(corner_urdf, basePosition=position, 
+                   baseOrientation=orientation, useFixedBase=True)
+    elif value == 4:  # Top-right corner
+        # Place top-right corner wall code here
+        orientation = p.getQuaternionFromEuler([0, 0, 1.5707963268])
+        p.loadURDF(corner_urdf, basePosition=position, 
+                   baseOrientation=orientation, useFixedBase=True)
+    elif value == 5:  # Bottom-left corner
+        # Place bottom-left corner wall code here
+        orientation = p.getQuaternionFromEuler([0, 0, 0])
+        p.loadURDF(corner_urdf, basePosition=position, 
+                   baseOrientation=orientation, useFixedBase=True)
+    elif value == 6:  # Bottom-right corner
+        # Place bottom-right corner wall code here
+        orientation = p.getQuaternionFromEuler([0, 0, -1.5707963268])
+        p.loadURDF(corner_urdf, basePosition=position, 
+                   baseOrientation=orientation, useFixedBase=True)
+
+def build_maze(maze_layout=None):
+    # Define the maze layout as a 2D array
+    if maze_layout is None:
+        with open('maze_layout.json', 'r') as file:
+            data = json.load(file)
+            maze_layout = np.array(data['maze'])
+
+    # Currently only support loading a 10x10 maze
+    assert maze_layout.shape == (maze_size, maze_size)
+
+    # Load maze boundary
+    p.loadURDF(boundary_urdf, 
+               basePosition=[-maze_size/2., -maze_size/2., wall_height/2.], 
+               baseOrientation=p.getQuaternionFromEuler([0, 0, 0]), 
+               useFixedBase=True)
+
+    # Loop through the maze_layout and add wall segments
+    for y, row in enumerate(maze_layout):
+        for x, obs_type in enumerate(row):
+            if obs_type != 0:
+                add_wall_segment(x, maze_size - y, obs_type)

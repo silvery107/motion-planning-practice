@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<robot name="maze_wall">
+    <link name="baseLink">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="1.0"/>
+            <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="1.0 0.1 0.5"/>
+                <!-- Size: Length x Width x Height -->
+            </geometry>
+            <material name="Cyan">
+                <color rgba="0 1 1 1"/>
+                <!-- Cyan color -->
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="1.0 0.1 0.5"/>
+                <!-- Same size as in visual -->
+            </geometry>
+        </collision>
+    </link>
+</robot>

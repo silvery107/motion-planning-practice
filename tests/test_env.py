@@ -1,3 +1,10 @@
+import os
+import inspect
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+os.sys.path.insert(0, parentdir)
+
 import time
 import pybullet as p
 import pybullet_data
@@ -9,7 +16,7 @@ p.setGravity(0,0,-9.8)
 planeId = p.loadURDF("plane.urdf")
 startPos = [0, 0, 0]
 startOrientation = p.getQuaternionFromEuler([0,0,0])
-robotId = p.loadURDF("robot.urdf",startPos, startOrientation)
+robotId = p.loadURDF("assets/robot.urdf",startPos, startOrientation)
 
 # p.changeDynamics(robotId, -1, lateralFriction=0.0)
 

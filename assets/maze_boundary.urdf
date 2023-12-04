@@ -1,0 +1,120 @@
+<?xml version="1.0" ?>
+<robot name="maze_boundary">
+    <link name="base"/>
+    <link name="wall_1">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="wall_2">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="wall_3">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+        </collision>
+    </link>
+    <link name="wall_4">
+        <inertial>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <mass value="1.0"/>
+            <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
+        </inertial>
+        <visual name="">
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+            <material name="">
+                <color rgba="0.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="10.0 0.1 0.5"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <!-- Connect the walls with fixed joints -->
+    <joint name="base_offset" type="fixed">
+        <origin xyz="5. 0. 0.0" rpy="0.0 0.0 0.0"/>
+        <parent link="base"/>
+        <child link="wall_1"/>
+    </joint>
+    <joint name="bottom_left_corner" type="fixed">
+        <parent link="wall_1"/>
+        <child link="wall_2"/>
+        <origin xyz="5 5 0" rpy="0 0 1.5708"/>
+        <!-- Rotate to make it horizontal and align it -->
+    </joint>
+
+    <joint name="top_left_corner" type="fixed">
+        <parent link="wall_2"/>
+        <child link="wall_3"/>
+        <origin xyz="5 5 0" rpy="0 0 1.5708"/>
+        <!-- Rotate and move to the opposite end -->
+    </joint>
+
+    <joint name="bottom_right_corner" type="fixed">
+        <parent link="wall_3"/>
+        <child link="wall_4"/>
+        <origin xyz="5 5 0" rpy="0 0 1.5708"/>
+        <!-- Rotate and position at the right side -->
+    </joint>
+
+</robot>
