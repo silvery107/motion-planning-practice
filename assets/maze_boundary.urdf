@@ -99,21 +99,21 @@
     <joint name="bottom_left_corner" type="fixed">
         <parent link="wall_1"/>
         <child link="wall_2"/>
-        <origin xyz="5 5 0" rpy="0 0 1.5708"/>
+        <origin xyz="5 5 0" rpy="0 0 1.5707963268"/>
         <!-- Rotate to make it horizontal and align it -->
     </joint>
 
     <joint name="top_left_corner" type="fixed">
         <parent link="wall_2"/>
         <child link="wall_3"/>
-        <origin xyz="5 5 0" rpy="0 0 1.5708"/>
+        <origin xyz="5 5 0" rpy="0 0 1.5707963268"/>
         <!-- Rotate and move to the opposite end -->
     </joint>
 
     <joint name="bottom_right_corner" type="fixed">
         <parent link="wall_3"/>
         <child link="wall_4"/>
-        <origin xyz="5 5 0" rpy="0 0 1.5708"/>
+        <origin xyz="5 5 0" rpy="0 0 1.5707963268"/>
         <!-- Rotate and position at the right side -->
     </joint>
 
