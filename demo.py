@@ -4,11 +4,11 @@ from argparse import ArgumentParser
 import pybullet_data
 
 from common import Hovercraft
-from planners import RRT, BiRRT, KdRRT, Astar
+from planners import *
 from utils import *
 
 parser = ArgumentParser()
-parser.add_argument("--algo", choices=["RRT", "BiRRT", "KdRRT", "Astar"], default="KdRRT")
+parser.add_argument("--algo", choices=["RRT", "BiRRT", "KdRRT", "Astar", "BiKdRRT"], default="KdRRT")
 args = parser.parse_args()
 
 if __name__ == "__main__":
@@ -51,12 +51,16 @@ if __name__ == "__main__":
     goal_bias = 0.1 # 5% ~ 10%
     # Kinodynamic RRT parameters
     num_primitives = 100
-    uniform_primitive = False
+    uniform_primitive = True
     robot_model = Hovercraft(SIM_DT)
+    # Bi-directional Kinodynamic RRT parameters
+    steer_threshold = 0.1
+    steer_points = 20
     # Astar parameters
     connectivity = 8
 
     # Define robot state space
+    search_dim = 3 if args.algo=="RRT" or args.algo=="Astar" else 6
     state_space = np.array([-10, 10,
                             -10, 10,
                             -2*np.pi, 2*np.pi,
@@ -64,11 +68,10 @@ if __name__ == "__main__":
                             -10, 10,
                             -10, 10
                             ]).reshape((-1, 2))
-    print("State Spaces in [x, y, theta, dx, dy, dtheta]:\n", state_space)
+    print("State Spaces in [x, y, theta, dx, dy, dtheta]:\n", state_space[:search_dim])
 
     ### Run planner container
     print(f"Start path planning with {args.algo}...")
-    search_dim = 3 if args.algo=="RRT" or args.algo=="Astar" else 6
     algo_container = eval(args.algo)(state_space[:search_dim], 
                                      collision_fn, 
                                      goal_bias=goal_bias, 
@@ -77,6 +80,8 @@ if __name__ == "__main__":
                                      robot_model=robot_model,
                                      num_primitives=num_primitives,
                                      uniform_primitive=uniform_primitive,
+                                     steer_thresh=steer_threshold,
+                                     steer_pts=steer_points,
                                      )
     path = algo_container.plan_path(start_config[:search_dim], goal_config[:search_dim])
     ###
