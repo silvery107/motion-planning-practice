@@ -16,10 +16,9 @@ class KdRRT(RRT):
                  num_primitives=100,
                  uniform_primitive=False,
                  goal_bias=0.1, 
-                 step_size=0.05, 
                  **kwargs):
 
-        super().__init__(config_space, collision_fn, goal_bias=goal_bias, step_size=step_size)
+        super().__init__(config_space, collision_fn, goal_bias=goal_bias)
         self._robot = robot_model
         self._num_primitives = num_primitives
         self._uniform_primitive = uniform_primitive
@@ -31,7 +30,8 @@ class KdRRT(RRT):
         """
         primitives = self._robot.sample_control(self._num_primitives, 
                                                uniform=self._uniform_primitive) # (dim_ctrl, N)
-        new_states = self._robot.ss_discrete(near_node.config[:, None], primitives) # (N, dim_state)
+        new_states = self._robot.ss_discrete(near_node.config[:, None], 
+                                             primitives) # (N, dim_state)
         valid_mask = np.logical_and(np.less_equal(new_states, 
                                                   self._config_space[:, 1]).all(1), 
                                     np.greater_equal(new_states, 
@@ -55,9 +55,9 @@ class KdRRT(RRT):
         rand_node.config[3:] = 0
         return rand_node
 
-    def is_connected(self, node_from, node_to):
+    def is_connected(self, node_from, node_to, thresh=0.5):
         # Test a circle region considering only x and y distance
-        if np.linalg.norm(node_from.config[:2] - node_to.config[:2]) < 0.5:
+        if np.linalg.norm(node_from.config[:2] - node_to.config[:2]) < thresh:
             return True
 
         return False
@@ -129,8 +129,8 @@ class KdRRT(RRT):
             # BVP solutions
             for state in steered_states:
                 if self._collision_fn(state):
-                    print(f"Steered path collided...")
-                    break
+                    print(f"[Error] Steered path collided...")
+                    return []
                 path.append(state)
 
             draw_sphere_markers(path, RED)

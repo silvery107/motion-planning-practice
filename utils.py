@@ -7,7 +7,7 @@ RED = (1, 0, 0, 1)
 BLACK = (0, 0, 0, 1)
 BLUE = (0, 0, 1, 1)
 WHITE = (1, 1, 1, 1)
-GREEN = (0, 1, 0, 1)
+GREEN = (0.2, 0.8, 0.1, 1)
 # Simulation params
 SIM_DT = 1./240.
 EPSILON = 1e-4
@@ -87,12 +87,13 @@ def extract_path(node, keep_node=False) -> list:
 
     return path
 
-def extract_bidirectional_path(node_from_start, node_to_goal, keep_node=False):
+def extract_bidirectional_path(node_from_start, node_to_goal, keep_node=False, steered_states=None):
     """
     Args:
         node_from_start (Node): Last node whose earliest parent is the start node
         node_to_goal (Node): Last node whose earliest parent is the goal node
         keep_node (bool, optional): Return node path. Defaults to False.
+        steered_states (list): Steered states between node_from_start and node_to_goal
 
     Returns:
         list: Path from start to goal
@@ -108,6 +109,9 @@ def extract_bidirectional_path(node_from_start, node_to_goal, keep_node=False):
 
     path = []
     path.extend(path_from_start)
+    if steered_states is not None:
+        path.extend(steered_states)
+
     if len(path_to_goal) > 1:
         path.extend(path_to_goal[1:])
 
