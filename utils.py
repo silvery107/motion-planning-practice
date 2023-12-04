@@ -83,6 +83,32 @@ def extract_path(node, keep_node=False) -> list:
 
     return path
 
+def extract_bidirectional_path(node_from_start, node_to_goal, keep_node=False):
+    """
+    Args:
+        node_from_start (Node): Last node whose earliest parent is the start node
+        node_to_goal (Node): Last node whose earliest parent is the goal node
+        keep_node (bool, optional): Return node path. Defaults to False.
+
+    Returns:
+        list: Path from start to goal
+    """
+    path_from_start = extract_path(node_from_start, keep_node)
+    path_to_goal = extract_path(node_to_goal, keep_node)
+    path_to_goal.reverse()
+    if keep_node:
+        for i in range(1, len(path_to_goal)):
+            path_to_goal[i].parent = path_to_goal[i-1]
+        
+        assert path_from_start[-1] == path_to_goal[0]
+
+    path = []
+    path.extend(path_from_start)
+    if len(path_to_goal) > 1:
+        path.extend(path_to_goal[1:])
+
+    return path
+
 def execute_trajectory(robot_id, joint_indices, path):
     """
     Args:
@@ -163,7 +189,31 @@ def set_joint_positions(robot_id, joint_indices, positions):
     for joint, value in zip(joint_indices, positions):
         p.resetJointState(robot_id, joint, value)
 
+def parse_actuated_joints(robot_id):
+    """
+    Args:
+        robot_id (int): unique id of robot
+
+    Returns:
+        list: actuated joints
+    """
+    actuated_joints = []
+    num_joint = p.getNumJoints(robot_id)
+    for idx in range(num_joint):
+        joint_info_list = p.getJointInfo(robot_id, idx)
+        if joint_info_list[2] != p.JOINT_FIXED:
+            actuated_joints.append(joint_info_list[0])
+
+    return actuated_joints
+
 def calculate_path_quality(path):
+    """
+    Args:
+        path (list): planned path
+
+    Returns:
+        float: path quality based on the traveled distance in config space
+    """
     path_cost = 0.0
     for idx in range(1, len(path)):
         prev_pt = path[idx-1]
@@ -175,6 +225,13 @@ def calculate_path_quality(path):
     return path_cost
 
 def add_wall_segment(x, y, value):
+    """
+    Args:
+        x (int): x index
+        y (int): y index
+        value (int): wall type, 1 for horizontal, 2 for vertical, 
+        3-6 for corners in clockwise direction
+    """
     position = [x * wall_length - maze_size/2., 
                 y * wall_length - maze_size/2., 
                 wall_height/2.]
@@ -209,12 +266,15 @@ def add_wall_segment(x, y, value):
         p.loadURDF(corner_urdf, basePosition=position, 
                    baseOrientation=orientation, useFixedBase=True)
 
-def build_maze(maze_layout=None):
+def build_maze(filename="maze_layout.json"):
+    """
+    Args:
+        filename (str, optional): Defaults to "maze_layout.json".
+    """
     # Define the maze layout as a 2D array
-    if maze_layout is None:
-        with open('maze_layout.json', 'r') as file:
-            data = json.load(file)
-            maze_layout = np.array(data['maze'])
+    with open(filename, 'r') as file:
+        data = json.load(file)
+        maze_layout = np.array(data['maze'])
 
     # Currently only support loading a 10x10 maze
     assert maze_layout.shape == (maze_size, maze_size)
@@ -230,3 +290,5 @@ def build_maze(maze_layout=None):
         for x, obs_type in enumerate(row):
             if obs_type != 0:
                 add_wall_segment(x, maze_size - y, obs_type)
+    
+    print(f"Loaded maze layout\n", maze_layout)
