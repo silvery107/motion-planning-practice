@@ -19,6 +19,10 @@ if __name__ == "__main__":
     p.setGravity(0, 0, -9.8)
     p.setTimeStep(SIM_DT)
     p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+    p.resetDebugVisualizerCamera(cameraDistance=5.5,
+                                 cameraYaw=0,
+                                 cameraPitch=-80,
+                                 cameraTargetPosition=[0, -0.75, 0])
 
     # Load world plane and robot
     p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
