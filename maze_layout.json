@@ -1,6 +1,11 @@
 {
   "description": "Define the costum maze layout. The size should be 10x10.",
-  "representation": "1 for horizontal wall, 2 for vertical wall, 3-6 for cooresponding wall corners in clockwise direction.",
+  "horizontal_wall":     "1",
+  "vertical_wall":       "2",
+  "top_left_corner":     "3",
+  "top_right_corner":    "4",
+  "bottom_right_corner": "5",
+  "bottom_left_corner":  "6",
   "maze": [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -9,7 +14,7 @@
     [0, 6, 1, 1, 5, 0, 0, 6, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 3, 1, 1, 4, 0, 0, 3, 1, 0],
+    [0, 3, 1, 1, 4, 0, 0, 3, 1, 1],
     [0, 2, 0, 0, 2, 0, 0, 2, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   ]
