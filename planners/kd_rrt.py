@@ -62,7 +62,7 @@ class KdRRT(RRT):
 
         return False
 
-    def steer(self, state_from, state_to, num_points=40):
+    def steer(self, state_from, state_to, num_points=60):
         """
             Solve BVP to connect two states within a small region
         """

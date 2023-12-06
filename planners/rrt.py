@@ -146,7 +146,8 @@ class RRT:
             print("Path Found!!!")
             print(f"Time elapsed: {time.time() - start_time:.5f}")
             path = extract_path(self.back())
-            draw_sphere_markers(path, BLUE)
+            draw_sphere_markers(path, BLACK, 2.5)
+            draw_sphere_markers(self._configs, BLUE)
             # Path smoothing
             node_path = extract_path(self.back(), keep_node=True)
             node_path = shortcut_smoothing(self, node_path, self._collision_fn)

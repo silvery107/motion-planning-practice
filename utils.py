@@ -5,18 +5,18 @@ import json
 # Colors
 RED = (1, 0, 0, 1)
 BLACK = (0, 0, 0, 1)
-BLUE = (0, 0, 1, 1)
+BLUE = (0.1, 0.2, 0.8, 1)
 WHITE = (1, 1, 1, 1)
 GREEN = (0.2, 0.8, 0.1, 1)
 # Simulation params
-SIM_DT = 1./240.
+SIM_DT = 1./100.
 EPSILON = 1e-4
-DECIMATION = 4
+DECIMATION = 1
 # Control params
-P_GAIN = 0.8
+P_GAIN = 1.0
 D_GAIN = 0.0
 # Render params
-MAX_POINTS = 35000
+MAX_POINTS = 40000
 RNG = np.random.default_rng()
 # Maze params
 wall_urdf = "assets/maze_wall.urdf"

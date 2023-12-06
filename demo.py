@@ -47,15 +47,15 @@ if __name__ == "__main__":
     path = []
 
     # RRT parameters
-    step_size = 0.05 # unit vec in config space
+    step_size = 0.02 # unit vec in config space
     goal_bias = 0.1 # 5% ~ 10%
     # Kinodynamic RRT parameters
-    num_primitives = 100
-    uniform_primitive = True
+    num_primitives = 26
+    uniform_primitive = False
     robot_model = Hovercraft(SIM_DT)
     # Bi-directional Kinodynamic RRT parameters
     steer_threshold = 0.1
-    steer_points = 20
+    steer_points = 40
     # Astar parameters
     connectivity = 8
 
@@ -64,9 +64,9 @@ if __name__ == "__main__":
     state_space = np.array([-10, 10,
                             -10, 10,
                             -2*np.pi, 2*np.pi,
-                            -10, 10,
-                            -10, 10,
-                            -10, 10
+                            -1, 1,
+                            -1, 1,
+                            -1, 1
                             ]).reshape((-1, 2))
     print("State Spaces in [x, y, theta, dx, dy, dtheta]:\n", state_space[:search_dim])
 

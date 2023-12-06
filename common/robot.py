@@ -11,7 +11,7 @@ class Hovercraft:
         self.dim_ctrl = 3
 
         self._dt = dt
-        self._ctrl_scale = 100.
+        self._ctrl_scale = 1.
         self._A = np.zeros((self.dim_state, self.dim_state))
         self._A[:3, 3:] = np.eye(3)
         self._B = np.zeros((self.dim_state, self.dim_ctrl))

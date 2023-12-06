@@ -45,7 +45,9 @@ class BiRRT:
             print("Path Found!!!")
             print(f"Time elapsed: {time.time() - start_time:.5f}")
             path = extract_bidirectional_path(self.rrt_start.back(), self.rrt_goal.back())
-            draw_sphere_markers(path, BLUE)
+            draw_sphere_markers(path, BLACK, 2.5)
+            draw_sphere_markers(self.rrt_start._configs, BLUE)
+            draw_sphere_markers(self.rrt_goal._configs, GREEN)
             # Path smoothing
             node_path = extract_bidirectional_path(self.rrt_start.back(), self.rrt_goal.back(), keep_node=True)
             node_path = shortcut_smoothing(self.rrt_start, node_path, self._collision_fn)
