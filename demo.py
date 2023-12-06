@@ -67,7 +67,7 @@ if __name__ == "__main__":
     search_dim = 3 if args.algo=="RRT" or args.algo=="Astar" else 6
     state_space = np.array([-10, 10,
                             -10, 10,
-                            -2*np.pi, 2*np.pi,
+                            -np.pi, np.pi,
                             -1, 1,
                             -1, 1,
                             -1, 1

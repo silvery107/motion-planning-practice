@@ -20,15 +20,15 @@ class Hovercraft:
         self._Ad = np.eye(self.dim_state) + self._A * self._dt
         self._Bd = self._B * self._dt
 
-        self._ctrl_bounds = np.array([-5, 5,
-                                     -5, 5,
-                                     -np.pi/2, np.pi/2
-                                    ]).reshape((self.dim_ctrl, 2)) * self._ctrl_scale
+        self._ctrl_bounds = np.array([-1, 0, 1,
+                                      -1, 0, 1,
+                                      -1, 0, 1
+                                     ]).reshape((self.dim_ctrl, 3)) * self._ctrl_scale
 
         control_primitives = set()
-        for xdd in [-1, 0, 1]:
-            for ydd in [-1, 0, 1]:
-                for thetadd in [-np.pi, 0, np.pi]:
+        for xdd in self._ctrl_bounds[0]:
+            for ydd in self._ctrl_bounds[1]:
+                for thetadd in self._ctrl_bounds[2]:
                     control_primitives.add((xdd, ydd, thetadd))
 
         control_primitives.remove((0, 0, 0))
@@ -79,7 +79,7 @@ class Hovercraft:
         """
         if uniform:
             return np.random.uniform(low=self._ctrl_bounds[:, :1], 
-                                     high=self._ctrl_bounds[:, 1:], 
+                                     high=self._ctrl_bounds[:, -1:], 
                                      size=(self.dim_ctrl, num_primitives))
 
         return np.random.permutation(self._ctrl_primitives.T)[:num_primitives].T
