@@ -16,6 +16,7 @@ DECIMATION = 1
 P_GAIN = 1.0
 D_GAIN = 0.0
 # Render params
+DISABLE_DRAWING = False
 MAX_POINTS = 40000
 RNG = np.random.default_rng()
 # Maze params
@@ -47,6 +48,9 @@ def draw_sphere_markers(configs, color, marker_size=3.):
         color (list): (3, ) in RGB
         marker_size (float): marker size
     """
+    if DISABLE_DRAWING:
+        return
+
     num_point = len(configs)
     if num_point == 0:
         return
@@ -109,7 +113,7 @@ def extract_bidirectional_path(node_from_start, node_to_goal, keep_node=False, s
 
     path = []
     path.extend(path_from_start)
-    if steered_states is not None:
+    if not keep_node and (steered_states is not None):
         path.extend(steered_states)
 
     if len(path_to_goal) > 1:
@@ -117,7 +121,7 @@ def extract_bidirectional_path(node_from_start, node_to_goal, keep_node=False, s
 
     return path
 
-def execute_trajectory(robot_id, joint_indices, path):
+def execute_trajectory(robot_id, joint_indices, path, draw=True):
     """
     Args:
         robot_id (int): Unique id from pybullet
@@ -137,8 +141,8 @@ def execute_trajectory(robot_id, joint_indices, path):
         command[:len(config)] = config
         p.setJointMotorControlArray(robot_id, joint_indices, 
                                     controlMode=p.POSITION_CONTROL, 
-                                    targetPositions=command[:3], 
-                                    # targetVelocities=command[3:], # TODO check if vel is necessary
+                                    targetPositions=command[:num_joints], 
+                                    # targetVelocities=command[num_joints:], # TODO check if vel is necessary
                                     positionGains=p_gains,
                                     # velocityGains=d_gains,
                                     )
@@ -147,14 +151,22 @@ def execute_trajectory(robot_id, joint_indices, path):
             p.stepSimulation()
             time.sleep(SIM_DT)
 
+        if draw:
+            link_state = p.getLinkState(robot_id, joint_indices[-1])
+            p.addUserDebugPoints(pointPositions=[link_state[0]], 
+                                 pointColorsRGB=[RED[:3]], 
+                                 pointSize=3., 
+                                 lifeTime=0)
+
     # Debug info of PD pose tracking
-    body_state = p.getLinkState(robot_id, 3)
-    pos = body_state[0]
-    orn = body_state[1]
+    joint_states = p.getJointStates(robot_id, joint_indices)
+    joint_positions = []
+    for state in joint_states:
+        joint_positions.append(state[0]) # (pos, vel, force, motor torque)
     print_opts  = np.get_printoptions()
     np.set_printoptions(precision=5, suppress=True)
-    print("Target pose:\n", np.array(path[-1][:3]))
-    print("Robot pose:\n", np.array([*pos[:2], p.getEulerFromQuaternion(orn)[-1]]))
+    print("Target pos:\n", np.array(path[-1][:num_joints]))
+    print("Robot pos:\n", np.array(joint_positions))
     np.set_printoptions(**print_opts)
 
 def get_collision_fn(robot_id, joint_indices):
@@ -197,20 +209,29 @@ def set_joint_positions(robot_id, joint_indices, positions):
     for joint, value in zip(joint_indices, positions):
         p.resetJointState(robot_id, joint, value)
 
-def parse_actuated_joints(robot_id):
+def parse_actuated_joints(robot_id, return_limits=False):
     """
     Args:
         robot_id (int): unique id of robot
+        return_limits (bool): parse revolute joint limits
 
     Returns:
         list: actuated joints
     """
     actuated_joints = []
+    joint_limits = []
     num_joint = p.getNumJoints(robot_id)
     for idx in range(num_joint):
         joint_info_list = p.getJointInfo(robot_id, idx)
         if joint_info_list[2] != p.JOINT_FIXED:
             actuated_joints.append(joint_info_list[0])
+        
+        if return_limits and joint_info_list[2] == p.JOINT_REVOLUTE:
+            joint_limits.append([*joint_info_list[8:10]])
+
+    if return_limits:
+        assert len(joint_limits) == len(actuated_joints)
+        return joint_limits, actuated_joints
 
     return actuated_joints
 
@@ -300,3 +321,16 @@ def build_maze(filename="maze_layout.json"):
                 add_wall_segment(x, maze_size - y, obs_type)
     
     print(f"Loaded maze layout\n", maze_layout)
+
+def get_transform_from_quat(quaternion):
+    transform = np.zeros((4, 4))
+    transform[:3, :3] = np.array(p.getMatrixFromQuaternion(quaternion)).reshape((3, 3))
+    transform[-1, -1] = 1.
+    return transform
+
+def get_com_pose(body_id, link_idx):
+    if link_idx==-1:
+        return p.getBasePositionAndOrientation(body_id)
+    
+    link_state = p.getLinkState(body_id, link_idx)
+    return np.array(link_state[0]), np.array(link_state[1]) # linkWorldPosition, linkWorldOrientation
