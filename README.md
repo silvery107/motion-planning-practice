@@ -60,10 +60,8 @@ Custom maze builder is also supported!
 <img src="figures/Astar.png" width="350">
 </p>
 
-<video src="https://github.com/silvery107/motion-planning-practice/assets/44640904/5c8d1668-7dd6-4469-a58d-177c25a3ddc1" width="500">
-</video>
 
-
+https://github.com/silvery107/motion-planning-practice/assets/44640904/9d7253c4-7a0b-4653-a128-995471088850
 
 
 ### Known Issues
