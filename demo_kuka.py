@@ -1,7 +1,7 @@
 import numpy as np
 import pybullet as p
-from argparse import ArgumentParser
 import pybullet_data
+from argparse import ArgumentParser
 
 from planners import *
 from utils import *
@@ -59,7 +59,12 @@ if __name__ == "__main__":
                          pointSize=15, 
                          lifeTime=0)
 
-    ik_solver = IIK(robot_id, actuated_joints, joint_limits, joint_polarities, alpha=0.001, beta=0.1)
+    ik_solver = IIK(robot_id, 
+                    actuated_joints, 
+                    joint_limits, 
+                    joint_polarities, 
+                    alpha=0.001, # 0.001 for visualization, 0.01 for fast convergence
+                    beta=0.1)
     config_guess = np.zeros(len(actuated_joints))
     start_config = ik_solver.calculate_ik(start_pos, config_guess)
     goal_config = ik_solver.calculate_ik(goal_pos, config_guess)
@@ -70,10 +75,6 @@ if __name__ == "__main__":
     # RRT parameters
     step_size = 0.02 # unit vec in config space
     goal_bias = 0.1 # 5% ~ 10%
-    # Bi-directional Kinodynamic RRT parameters
-    steer_threshold = 0.1
-    steer_points = 40
-
 
     ### Run planner container
     print(f"Start path planning with {args.algo}...")
@@ -81,8 +82,6 @@ if __name__ == "__main__":
                                      collision_fn, 
                                      goal_bias=goal_bias, 
                                      step_size=step_size, 
-                                     steer_thresh=steer_threshold,
-                                     steer_pts=steer_points,
                                      )
     path = algo_container.plan_path(start_config, goal_config)
     ###
