@@ -1,6 +1,7 @@
 # Motion Planning Practice
 
 Fast motion planning algorithm implementations with hovercraft and KUKA 7-DOF arm demos in pybullet!
+
 Custom maze builder is also supported!
 
 <p align="left">
