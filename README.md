@@ -60,6 +60,11 @@ Custom maze builder is also supported!
 <img src="figures/Astar.png" width="350">
 </p>
 
+<video src="https://github.com/silvery107/motion-planning-practice/assets/44640904/5c8d1668-7dd6-4469-a58d-177c25a3ddc1" width="500">
+</video>
+
+
+
 
 ### Known Issues
 - BVP solver can be unstable when steering between two states with large velocities.
