@@ -73,14 +73,12 @@ class IIK:
         # Init states
         q_curr = q_guess if q_guess is not None else np.zeros((len(self._joint_indices)))
         iterations = 0
-        q_res = None
         while iterations < self._max_iters:
             iterations += 1
             x_current = get_ee_pos(self._robot_id, self._joint_indices, q_curr)
             x_dot = x_target - x_current
             x_error_norm = np.linalg.norm(x_dot)
             if x_error_norm < self._epsilon:
-                q_res = q_curr
                 break
             J = get_translation_jacobian(self._robot_id, self._joint_indices) # (3, num_joint)
             J *= self._joint_polarities
@@ -102,4 +100,4 @@ class IIK:
             q_curr = np.clip(q_curr, self._config_space[:, 0], self._config_space[:, 1])
         
         print(f"IK solved for position {x_current} in {iterations} iterations with config:\n{q_curr}")
-        return q_res
+        return q_curr

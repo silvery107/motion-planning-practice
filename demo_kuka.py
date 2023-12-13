@@ -20,10 +20,10 @@ if __name__ == "__main__":
     p.setGravity(0, 0, -9.8)
     p.setTimeStep(SIM_DT)
     p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
-    p.resetDebugVisualizerCamera(cameraDistance=2,
+    p.resetDebugVisualizerCamera(cameraDistance=1.3,
                                  cameraYaw=135,
-                                 cameraPitch=-45,
-                                 cameraTargetPosition=[0, 0., 0.1])
+                                 cameraPitch=-30,
+                                 cameraTargetPosition=[0, 0., 0.3])
 
     # Load world plane and robot
     p.setAdditionalSearchPath(pybullet_data.getDataPath()) #optionally
@@ -32,6 +32,8 @@ if __name__ == "__main__":
     start_euler = [0, 0, 0]
     start_orientation = p.getQuaternionFromEuler(start_euler)
     robot_id = p.loadURDF("kuka_iiwa/model.urdf", start_pos, start_orientation, useFixedBase=True)
+
+    add_wall_segment(5.2, 5.2, 6)
 
     # Parse active DoFs from robot urdf
     joint_limits, actuated_joints = parse_actuated_joints(robot_id, return_limits=True)
@@ -46,19 +48,19 @@ if __name__ == "__main__":
     collision_fn = get_collision_fn(robot_id, actuated_joints)
 
     # Initialize start and goal positions in [x, y, z]
-    start_pos = [0.5, 0.3, 0.8]
-    goal_pos = [-0.5, 0.3, 0.8]
+    start_pos = [0.0, 0.5, 0.4]
+    goal_pos = [0.5, 0.0, 0.4]
     p.addUserDebugPoints(pointPositions=[start_pos], 
                          pointColorsRGB=[BLACK[:3]], 
-                         pointSize=10, 
+                         pointSize=15, 
                          lifeTime=0)
     p.addUserDebugPoints(pointPositions=[goal_pos], 
                          pointColorsRGB=[GREEN[:3]], 
-                         pointSize=10, 
+                         pointSize=15, 
                          lifeTime=0)
 
-    ik_solver = IIK(robot_id, actuated_joints, joint_limits, joint_polarities, alpha=0.001)
-    config_guess = np.ones(len(actuated_joints))
+    ik_solver = IIK(robot_id, actuated_joints, joint_limits, joint_polarities, alpha=0.001, beta=0.1)
+    config_guess = np.zeros(len(actuated_joints))
     start_config = ik_solver.calculate_ik(start_pos, config_guess)
     goal_config = ik_solver.calculate_ik(goal_pos, config_guess)
 
