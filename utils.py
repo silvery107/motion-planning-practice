@@ -121,7 +121,7 @@ def extract_bidirectional_path(node_from_start, node_to_goal, keep_node=False, s
 
     return path
 
-def execute_trajectory(robot_id, joint_indices, path, draw=True):
+def execute_trajectory(robot_id, joint_indices, path, draw=False):
     """
     Args:
         robot_id (int): Unique id from pybullet
