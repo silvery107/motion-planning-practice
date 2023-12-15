@@ -39,7 +39,6 @@ class RRT:
         if len(self._configs) > self._build_tree_thresh and not self._build_tree_flag:
             self._build_tree_flag = True
             self._build_tree_thresh += self._tree_increment
-    
     def back(self) -> Node:
         return self._elements[-1]
 
@@ -83,7 +82,7 @@ class RRT:
         # print(f"len {len(self._elements)} | time {(time.time() - start_time):.5f}")
         return self._elements[min_idx]
 
-    def extand_node(self, near_node:Node, rand_node:Node) -> Node:
+    def extend_node(self, near_node:Node, rand_node:Node) -> Node:
         unit_vec = rand_node.config - near_node.config
         unit_vec /= np.linalg.norm(unit_vec)
         new_config = near_node.config + unit_vec * self._step_size
@@ -109,7 +108,7 @@ class RRT:
         prev_node = near_node
         # Connect
         while True:
-            new_node = self.extand_node(prev_node, rand_node)
+            new_node = self.extend_node(prev_node, rand_node)
             # Stop if collided
             if self._collision_fn(new_node.config):
                 break

@@ -47,7 +47,7 @@ def get_jacobian_pinv(J, lam=0.01):
 
 
 class IIK:
-    """Iterative (Jacobian Pseudo-Inverse) Inverse Kinematics (IIK)
+    """Iterative (Jacobian Pseudo-Inverse) Inverse Kinematics
     """
     def __init__(self, 
                  robot_id, 

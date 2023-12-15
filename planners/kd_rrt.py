@@ -23,7 +23,7 @@ class KdRRT(RRT):
         self._num_primitives = num_primitives
         self._uniform_primitive = uniform_primitive
 
-    def extand_node(self, near_node: Node, rand_node: Node) -> Node:
+    def extend_node(self, near_node: Node, rand_node: Node) -> Node:
         """
             u* = min_{u_i} dist(f(x_near, u_i), x_rand) for u_i in U
             x_new = f(x_near, u*)
