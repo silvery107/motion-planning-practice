@@ -5,13 +5,14 @@ Fast motion planning algorithm implementations with hovercraft and KUKA 7-DOF ar
 Custom maze builder is also supported!
 
 <p align="left">
-<img src="figures/KdRRT.png" width="350">
+<img src="figures/env_setup.png" width="350">
 <img src="figures/kuka_rrt.png" width="350">
 </p>
 
 ## Algorithms
 - [x] A*
 - [x] RRT
+- [ ] RRT*
 - [x] Bidirectional RRT
 - [x] Kinodynamic RRT
 - [x] Bidirectional Kinodynamic RRT
@@ -66,4 +67,4 @@ https://github.com/silvery107/motion-planning-practice/assets/44640904/9d7253c4-
 
 ### Known Issues
 - BVP solver can be unstable when steering between two states with large velocities.
-- Iterative IK solver can converge to sub-optimal solutions due to joint limits, singularities and different initial guesses.
+- Iterative IK solver can converge to sub-optimal solutions due to joint limits, singularities or different initial guesses.
