@@ -22,7 +22,7 @@ def shortcut_smoothing(rrt_container,
         new_node_list = []
         # Connect
         while True:
-            new_node = rrt_container.extand_node(prev_node, second)
+            new_node = rrt_container.extend_node(prev_node, second)
             # Stop if collided
             if collision_fn(new_node.config):
                 break
