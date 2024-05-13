@@ -1,5 +1,6 @@
 import time
 import numpy as np
+import casadi as ca
 from .rrt import RRT, Node
 from scipy.integrate import solve_bvp
 from utils import *
@@ -16,12 +17,14 @@ class KdRRT(RRT):
                  num_primitives=100,
                  uniform_primitive=False,
                  goal_bias=0.1, 
+                 connect_thresh = 0.5,
                  **kwargs):
 
         super().__init__(config_space, collision_fn, goal_bias=goal_bias)
         self._robot = robot_model
         self._num_primitives = num_primitives
         self._uniform_primitive = uniform_primitive
+        self._connect_thresh = connect_thresh
 
     def extend_node(self, near_node: Node, rand_node: Node) -> Node:
         """
@@ -62,46 +65,59 @@ class KdRRT(RRT):
 
         return False
 
-    def steer(self, state_from, state_to, num_points=60):
+    def steer(self, state_from, state_to, num_points=500):
         """
-            Solve BVP to connect two states within a small region
+            Solve trajectory optimization to connect two states within a small region
         """
-        # y: state + control
-        # x: time
-        n = self._robot.dim_state + self._robot.dim_ctrl
+        dim_state = self._robot.dim_state
+        dim_ctrl = self._robot.dim_ctrl
+        # Def dynamics
+        dt = self._robot._dt
+        x = ca.MX.sym('x', dim_state)
+        u = ca.MX.sym('u', dim_ctrl)
+        x_next = ca.MX.zeros(dim_state)
+        x_next[3:] = x[3:] + u * dt
+        x_next[:3] = x[:3] + x_next[3:] * dt
+        F = ca.Function('F', [x, u], [x_next])
+        # Build a Multiple Shooting TO with Casadi Opti stack
+        opti = ca.Opti()
+        # Opt variables
+        X = opti.variable(dim_state, num_points+1)
+        U = opti.variable(dim_ctrl, num_points)
+        # Boundary constraints
+        opti.subject_to(X[:, 0] == state_from)
+        opti.subject_to(X[:, -1] == state_to)
+        # Dynamics constraints
+        for i in range(num_points):
+            opti.subject_to(X[:, i+1] == F(X[:, i], U[:, i]))
+        # Path constraints
+        ctrl_ub = self._robot._ctrl_bounds[:, -1]
+        opti.subject_to(opti.bounded(-ctrl_ub, U, ctrl_ub))
+        opti.subject_to(ca.sum1((X[:2, :] - state_to[:2])**2) <= self._connect_thresh**2)
+        # Objective
+        opti.minimize(ca.sumsqr(U))
+        # Initial guess
+        opti.set_initial(X, np.linspace(state_from, state_to, num_points+1).T)
+        # Solver
+        options = dict()
+        options["print_time"] = True
+        options["ipopt"] = {"print_level": 0}
+        opti.solver("ipopt", options)
+        sol = None
+        try:
+            sol = opti.solve()
+        except:
+            opti.debug.show_infeasibilities()
+            # print(opti.debug.value(U))
+            # import pdb
+            # pdb.set_trace()
+            print("Steering failed...")
 
-        ya_tgt = np.zeros((n,))
-        ya_tgt[:self._robot.dim_state] = state_from
-        yb_tgt = np.zeros((n,))
-        yb_tgt[:self._robot.dim_state] = state_to
-
-        def fun(x, y):
-            # x: (m, )
-            # y: (n, )
-            state = y[:self._robot.dim_state] # (dim_state, num_points)
-            control = y[self._robot.dim_state:] # (dim_ctrl, num_points)
-            dydx = np.zeros((n, x.shape[0]))
-            dydx[:self._robot.dim_state] = self._robot.ss_continuous(state, control)
-            return dydx # (n, m)
-
-        def bc(ya, yb):
-            # ya, yb: (n, )
-            return np.array([ya[0] - ya_tgt[0], ya[1] - ya_tgt[1], ya[2] - ya_tgt[2], # pose at a
-                            #  ya[3] - ya_tgt[3], ya[4] - ya_tgt[4], ya[5] - ya_tgt[5], # vel at a
-                             yb[0] - yb_tgt[0], yb[1] - yb_tgt[1], yb[2] - yb_tgt[2], # pose at b
-                             yb[3] - yb_tgt[3], yb[4] - yb_tgt[4], yb[5] - yb_tgt[5], # vel at b
-                             ])
-
-        x_mesh = np.linspace(0, 1, num_points) # (num_points, )
-        y_init = np.linspace(ya_tgt, yb_tgt, num_points, axis=-1) # (dim_state+dim_ctrl, num_points)
-        res = solve_bvp(fun, bc, x_mesh, y_init, verbose=1, max_nodes=200, tol=0.001)
-        print(f"BVP Success: {res.success} | {res.message}")
-        res_states = res.y[:self._robot.dim_state].T # (num_points, dim_state)
-
-        if res.success:
-            return res_states
+        if sol is not None:
+            return sol.value(X).T # (num_points+1, dim_state)
 
         return []
+    
     
     def plan_path(self, start_config, goal_config):
         path = []

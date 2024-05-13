@@ -58,8 +58,8 @@ if __name__ == "__main__":
     uniform_primitive = False
     robot_model = Hovercraft(SIM_DT)
     # Bi-directional Kinodynamic RRT parameters
-    steer_threshold = 0.1
-    steer_points = 40
+    steer_threshold = 0.2
+    steer_points = 400
     # Astar parameters
     connectivity = 8
 
@@ -97,5 +97,5 @@ if __name__ == "__main__":
     print("Start executing planned path...")
     execute_trajectory(robot_id, actuated_joints, path)
 
-    input("Done!")
+    input("Done! Press Enter to exit.")
     p.disconnect()
