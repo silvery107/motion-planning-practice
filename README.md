@@ -17,7 +17,7 @@ Custom maze builder is also supported!
 - [x] Kinodynamic RRT
 - [x] Bidirectional Kinodynamic RRT
 - [x] Shortcut Path Smoothing
-- [x] BVP Steering
+- [x] Nonlinear State Steering via CasADi
 - [x] Fast NN query with lazy-rebuilt KD Tree
 - [x] Iterative Inverse Kinematics
 - [x] Secondary IK tasks through Jacobian null space projection 
@@ -66,5 +66,5 @@ https://github.com/silvery107/motion-planning-practice/assets/44640904/9d7253c4-
 
 
 ### Known Issues
-- BVP solver can be unstable when steering between two states with large velocities.
+- Nonlinear state steering could fail due to the kinodynamic infeasibility.
 - Iterative IK solver can converge to sub-optimal solutions due to joint limits, singularities or different initial guesses.

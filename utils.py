@@ -166,7 +166,7 @@ def execute_trajectory(robot_id, joint_indices, path, draw=False):
     print_opts  = np.get_printoptions()
     np.set_printoptions(precision=5, suppress=True)
     print("Target pos:\n", np.array(path[-1][:num_joints]))
-    print("Robot pos:\n", np.array(joint_positions))
+    print("Achieved pos:\n", np.array(joint_positions))
     np.set_printoptions(**print_opts)
 
 def get_collision_fn(robot_id, joint_indices):

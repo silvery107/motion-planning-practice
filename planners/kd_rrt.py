@@ -101,7 +101,7 @@ class KdRRT(RRT):
         # Solver
         options = dict()
         options["print_time"] = True
-        options["ipopt"] = {"print_level": 0}
+        options["ipopt"] = {"print_level": 0, "tol": 1e-6}
         opti.solver("ipopt", options)
         sol = None
         try:
