@@ -65,10 +65,21 @@ class KdRRT(RRT):
 
         return False
 
-    def steer(self, state_from, state_to, num_points=500):
+    def steer(self, state_from, state_to, num_points=None, method="direct"):
+        if method == "direct":
+            return self.steer_direct(state_from, state_to)
+        elif method == "indirect":
+            return self.steer_bvp(state_from, state_to)
+        else:
+            raise NotImplementedError()
+
+    def steer_direct(self, state_from, state_to):
         """
-            Solve trajectory optimization to connect two states within a small region
+            Solve trajectory optimization via direct trajectory optimization
+            to connect two states within a small region
         """
+        tf = 5 # sec
+        num_points = int(tf/SIM_DT)
         dim_state = self._robot.dim_state
         dim_ctrl = self._robot.dim_ctrl
         # Def dynamics
@@ -93,7 +104,6 @@ class KdRRT(RRT):
         # Path constraints
         ctrl_ub = self._robot._ctrl_bounds[:, -1]
         opti.subject_to(opti.bounded(-ctrl_ub, U, ctrl_ub))
-        opti.subject_to(ca.sum1((X[:2, :] - state_to[:2])**2) <= self._connect_thresh**2)
         # Objective
         opti.minimize(ca.sumsqr(U))
         # Initial guess
@@ -115,6 +125,84 @@ class KdRRT(RRT):
 
         if sol is not None:
             return sol.value(X).T # (num_points+1, dim_state)
+    
+    def steer_bvp(self, state_from, state_to):
+        """
+            Solve the ODE system with boundary conditions derived from 
+            continuous optimal control via Pontryagin's Minimum Principle (PMP)
+            to connect two states within a small region.
+        """
+        # x: time
+        # y: state + costate
+        dim_state = self._robot.dim_state
+        dim_ctrl = self._robot.dim_ctrl
+        n = dim_state * 2 # state + costate
+
+        ya_tgt = np.zeros((n*2,))
+        ya_tgt[:n] = state_from
+        yb_tgt = np.zeros((n*2,))
+        yb_tgt[:n] = state_to
+        ctrl_limits = self._robot._ctrl_bounds[:, [0, -1]] # (dim_ctrl, 2) [lb, ub]
+
+        def get_u(p, lb, ub):
+            """ Optimal control trajectory derived from PMP
+                g(x, u) = u^2
+            """
+            u = 0
+            if p >= 2:
+                u = lb
+            elif p <= -2:
+                u = ub
+            else:
+                u = -0.5 * p
+            
+            return u
+
+        def fun(x, y):
+            """ The derived ODE system
+                n state equations
+                n costate equations
+                2n boundary conditions on states
+                dy / dx = f(x, y)
+            """
+            # x: (m, )
+            # y: (n, m)
+            m = x.shape[0]
+            state = y[:dim_state]   # (dim_state, num_points)
+            costate = y[dim_state:] # (dim_state, num_points)
+            control = np.zeros((dim_ctrl, m)) # (dim_ctrl, num_points)
+            
+            for idx in range(m):
+                for idx_ctrl in range(dim_ctrl):
+                    control[idx_ctrl, idx] = get_u(costate[dim_ctrl+idx_ctrl, idx], 
+                                                   ctrl_limits[idx_ctrl, 0]*0.01,
+                                                   ctrl_limits[idx_ctrl, 1]*0.01)
+
+            dydx = np.zeros((n, m)) # (n, 1)
+            dydx[:dim_state] = self._robot.ss_continuous(state, control)
+            dydx[dim_state:] = - self._robot._A.T @ costate
+            return dydx
+
+        def bc(ya, yb):
+            """ Boundary conditions (2n)
+                bc(y(a), y(b)) = 0
+            """
+            # ya, yb: (n, )
+            return np.array([ya[0] - ya_tgt[0], ya[1] - ya_tgt[1], wrap_to_pi(ya[2] - ya_tgt[2]), # pose at a
+                             ya[3] - ya_tgt[3], ya[4] - ya_tgt[4], ya[5] - ya_tgt[5], # vel at a
+                             yb[0] - yb_tgt[0], yb[1] - yb_tgt[1], wrap_to_pi(yb[2] - yb_tgt[2]), # pose at b
+                             yb[3] - yb_tgt[3], yb[4] - yb_tgt[4], yb[5] - yb_tgt[5], # vel at b
+                             ])
+        tf = 5 # sec
+        num_points = int(tf/SIM_DT)
+        x_mesh = np.linspace(0, tf, num_points) # (num_points, )
+        y_init = np.linspace(ya_tgt, yb_tgt, num_points, axis=-1) # (n, num_points)
+        res = solve_bvp(fun, bc, x_mesh, y_init, verbose=2, max_nodes=1e4, tol=0.001)
+        print(f"BVP Success: {res.success} | {res.message}")
+        res_states = res.y[:n].T # (num_points, dim_state)
+
+        if res.success:
+            return res_states
 
         return []
     

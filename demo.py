@@ -59,7 +59,7 @@ if __name__ == "__main__":
     robot_model = Hovercraft(SIM_DT)
     # Bi-directional Kinodynamic RRT parameters
     steer_threshold = 0.2
-    steer_points = 400
+    steer_points = 400 # ! Deprecated
     # Astar parameters
     connectivity = 8
 
