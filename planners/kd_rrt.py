@@ -65,7 +65,7 @@ class KdRRT(RRT):
 
         return False
 
-    def steer(self, state_from, state_to, num_points=None, method="direct"):
+    def steer(self, state_from, state_to, num_points=None, method="indirect"):
         if method == "direct":
             return self.steer_direct(state_from, state_to)
         elif method == "indirect":
@@ -138,10 +138,10 @@ class KdRRT(RRT):
         dim_ctrl = self._robot.dim_ctrl
         n = dim_state * 2 # state + costate
 
-        ya_tgt = np.zeros((n*2,))
-        ya_tgt[:n] = state_from
-        yb_tgt = np.zeros((n*2,))
-        yb_tgt[:n] = state_to
+        ya_tgt = np.zeros((n,))
+        ya_tgt[:dim_state] = state_from
+        yb_tgt = np.zeros((n,))
+        yb_tgt[:dim_state] = state_to
         ctrl_limits = self._robot._ctrl_bounds[:, [0, -1]] # (dim_ctrl, 2) [lb, ub]
 
         def get_u(p, lb, ub):
@@ -199,7 +199,7 @@ class KdRRT(RRT):
         y_init = np.linspace(ya_tgt, yb_tgt, num_points, axis=-1) # (n, num_points)
         res = solve_bvp(fun, bc, x_mesh, y_init, verbose=2, max_nodes=1e4, tol=0.001)
         print(f"BVP Success: {res.success} | {res.message}")
-        res_states = res.y[:n].T # (num_points, dim_state)
+        res_states = res.y[:dim_state].T # (num_points, dim_state)
 
         if res.success:
             return res_states

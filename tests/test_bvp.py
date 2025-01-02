@@ -21,7 +21,7 @@ def get_u(p):
 
     return u
 
-def fun(t, y):
+def ode(t, y):
     m = t.shape[0]
     dydt = np.zeros((n, m))
 
@@ -69,7 +69,7 @@ t_span = np.linspace(0, tf, num_points)
 
 # Solve the boundary value problem using solve_bvp
 y_init = np.linspace(y0, yf, num_points, axis=-1)
-solution = solve_bvp(fun, bc, t_span, y_init, verbose=2)
+solution = solve_bvp(ode, bc, t_span, y_init, verbose=2)
 print(f"Success: {solution.success}")
 # Extract the solution
 sol = solution.sol(t_span)

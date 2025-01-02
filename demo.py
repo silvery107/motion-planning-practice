@@ -75,6 +75,7 @@ if __name__ == "__main__":
     print("State Spaces in [x, y, theta, dx, dy, dtheta]:\n", state_space[:search_dim])
 
     ### Run planner container
+    input("Press Enter to start")
     print(f"Start path planning with {args.algo}...")
     algo_container = eval(args.algo)(state_space[:search_dim], 
                                      collision_fn, 
